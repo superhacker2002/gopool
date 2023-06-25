@@ -8,17 +8,17 @@ import (
 
 type JsonReader struct{}
 
-type cakesRecipes struct {
-	Recipes []recipe `json:"cake"`
+type CakesRecipes struct {
+	Recipes []Recipe `json:"cake"`
 }
 
-type recipe struct {
-	Name        string `json:"name"`
-	Time        string `json:"time"`
-	Ingredients []ingredient
+type Recipe struct {
+	Name        string       `json:"name"`
+	Time        string       `json:"time"`
+	Ingredients []Ingredient `json:"ingredients"`
 }
 
-type ingredient struct {
+type Ingredient struct {
 	Name  string `json:"ingredient_name"`
 	Count string `json:"ingredient_count"`
 	Unit  string `json:"ingredient_unit,omitempty"`
@@ -30,7 +30,7 @@ func (j JsonReader) Read(reader io.Reader) (entity.CakeRecipes, error) {
 		return entity.CakeRecipes{}, err
 	}
 
-	cr := cakesRecipes{}
+	cr := CakesRecipes{}
 
 	err = json.Unmarshal(data, &cr)
 	if err != nil {
@@ -40,7 +40,7 @@ func (j JsonReader) Read(reader io.Reader) (entity.CakeRecipes, error) {
 	return recipeToEntity(cr), nil
 }
 
-func recipeToEntity(recipes cakesRecipes) entity.CakeRecipes {
+func recipeToEntity(recipes CakesRecipes) entity.CakeRecipes {
 	var outputCakes entity.CakeRecipes
 	for _, jsonRecipe := range recipes.Recipes {
 		var entityIngredients []entity.Ingredient

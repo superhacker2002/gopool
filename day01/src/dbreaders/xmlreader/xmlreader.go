@@ -8,26 +8,27 @@ import (
 
 type XmlReader struct{}
 
-type cakesRecipes struct {
-	Recipes []recipe `xml:"cake"`
+type CakesRecipes struct {
+	XMLName xml.Name `xml:"recipes"`
+	Recipes []Recipe `xml:"cake"`
 }
 
-type recipe struct {
+type Recipe struct {
 	Name        string      `xml:"name"`
 	Time        string      `xml:"stovetime"`
-	Ingredients ingredients `xml:"ingredients"`
+	Ingredients Ingredients `xml:"ingredients"`
 }
 
-type ingredients struct {
+type Ingredients struct {
 	XMLName xml.Name `xml:"ingredients"`
-	Items   []item   `xml:"item"`
+	Items   []Item   `xml:"item"`
 }
 
-type item struct {
+type Item struct {
 	XMLName xml.Name `xml:"item"`
 	Name    string   `xml:"itemname"`
 	Count   string   `xml:"itemcount"`
-	Unit    string   `xml:"itemunit"`
+	Unit    string   `xml:"itemunit,omitempty"`
 }
 
 func (x XmlReader) Read(reader io.Reader) (entity.CakeRecipes, error) {
@@ -36,7 +37,7 @@ func (x XmlReader) Read(reader io.Reader) (entity.CakeRecipes, error) {
 		return entity.CakeRecipes{}, err
 	}
 
-	cr := cakesRecipes{}
+	cr := CakesRecipes{}
 
 	err = xml.Unmarshal(data, &cr)
 	if err != nil {
@@ -46,7 +47,7 @@ func (x XmlReader) Read(reader io.Reader) (entity.CakeRecipes, error) {
 	return recipeToEntity(cr), nil
 }
 
-func recipeToEntity(recipes cakesRecipes) entity.CakeRecipes {
+func recipeToEntity(recipes CakesRecipes) entity.CakeRecipes {
 	var outputCakes entity.CakeRecipes
 	for _, xmlRecipe := range recipes.Recipes {
 		var entityIngredients []entity.Ingredient

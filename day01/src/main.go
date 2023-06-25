@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day01/converter"
 	"day01/dbreaders/jsonreader"
 	"day01/dbreaders/xmlreader"
 	"day01/entity"
@@ -35,8 +36,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("error while reading file: %v", err)
 	}
+	xmlRecipe, err := converter.ToXml(recipes)
+	if err != nil {
+		log.Fatalf("failed to connvert structure to JSON: %v", err)
+	}
 
-	fmt.Println(recipes)
+	fmt.Println(xmlRecipe)
 }
 
 func chooseReader(fileName string) DBReader {
