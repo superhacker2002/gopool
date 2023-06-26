@@ -24,14 +24,14 @@ func Compare(old entity.CakeRecipes, new entity.CakeRecipes) string {
 
 	for key, val := range uniqueRecipes {
 		if val == oldDB {
-			recipeInfo += fmt.Sprintf("REMOVED cake \"%s\"\n", key)
+			recipeInfo += fmt.Sprintf("REMOVED cake %q\n", key)
 		}
 		if val == newDB {
-			recipeInfo += fmt.Sprintf("ADDED cake \"%s\"\n", key)
+			recipeInfo += fmt.Sprintf("ADDED cake %q\n", key)
 		}
 	}
 
-	return fmt.Sprintln(recipeInfo, additionalInfo)
+	return recipeInfo + additionalInfo
 }
 
 func addRecipe(uniqueRecipes map[string]int, old entity.Recipe, new entity.Recipe) string {
@@ -48,8 +48,7 @@ func addRecipe(uniqueRecipes map[string]int, old entity.Recipe, new entity.Recip
 
 func addStoveTime(old string, new string, cakeName string) string {
 	if old != new {
-		return fmt.Sprintf("CHANGED cooking time for cake \"%s\" - "+
-			"\"%s\" instead of \"%s\"\n", cakeName, new, old)
+		return fmt.Sprintf("CHANGED cooking time for cake %q - %q instead of %q\n", cakeName, new, old)
 	}
 	return ""
 }
@@ -69,14 +68,14 @@ func addIngredients(old entity.Recipe, new entity.Recipe, cakeName string) strin
 
 	for key, val := range uniqueIngredients {
 		if val == oldDB {
-			ingredientInfo += fmt.Sprintf("REMOVED ingredient \"%s\" for cake \"%s\"\n", key, cakeName)
+			ingredientInfo += fmt.Sprintf("REMOVED ingredient %q for cake %q\n", key, cakeName)
 		}
 		if val == newDB {
-			ingredientInfo += fmt.Sprintf("ADDED ingredient \"%s\" cake \"%s\"\n", key, cakeName)
+			ingredientInfo += fmt.Sprintf("ADDED ingredient %q cake %q\n", key, cakeName)
 		}
 	}
 
-	return fmt.Sprintf(ingredientInfo, additionalInfo)
+	return ingredientInfo + additionalInfo
 }
 
 func checkIngredient(uniqueIngredients map[string]int, old entity.Ingredient,
@@ -95,8 +94,8 @@ func checkIngredient(uniqueIngredients map[string]int, old entity.Ingredient,
 
 func addIngredientCount(old entity.Ingredient, new entity.Ingredient, cakeName string) string {
 	if old.Count != new.Count {
-		return fmt.Sprintf("CHANGED unit count for ingredient \"%s\" for cake  \"%s\" - "+
-			"\"%s\" instead of \"%s\"", old.Name, cakeName, new.Count, old.Count)
+		return fmt.Sprintf("CHANGED unit count for ingredient %q for cake %q - "+
+			"%q instead of %q\n", old.Name, cakeName, new.Count, old.Count)
 	}
 
 	return ""
@@ -108,18 +107,18 @@ func addIngredientUnit(old entity.Ingredient, new entity.Ingredient, cakeName st
 	}
 
 	if old.Unit == "" && new.Unit != "" {
-		return fmt.Sprintf("ADDED unit \"%s\" for ingredient \"%s\" for cake \"%s\"\n",
+		return fmt.Sprintf("ADDED unit %q for ingredient %q for cake %q\n",
 			old.Unit, old.Name, cakeName)
 	}
 
 	if old.Unit != "" && new.Unit == "" {
-		return fmt.Sprintf("REMOVED unit \"%s\" for ingredient \"%s\" for cake \"%s\"\n",
+		return fmt.Sprintf("REMOVED unit %q for ingredient %q for cake %q\n",
 			old.Unit, old.Name, cakeName)
 	}
 
 	if old.Unit != new.Unit {
-		return fmt.Sprintf("CHANGED unit for ingredient \"%s\" for cake \"%s\"\n",
-			old.Name, cakeName)
+		return fmt.Sprintf("CHANGED unit for ingredient %q for cake %q - %q instead of %q\n",
+			old.Name, cakeName, new.Unit, old.Unit)
 	}
 
 	return ""

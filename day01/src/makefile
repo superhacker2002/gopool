@@ -5,5 +5,5 @@ run00:
 
 run01:
 	go build -o compareDB cmd/ex01/main.go
-	./compareDB --old original_database.xml --new stolen_database.json
+	./compareDB --old ../original_database.xml --new ../stolen_database.json
 	rm -rf compareDB

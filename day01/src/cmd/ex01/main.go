@@ -1,10 +1,16 @@
 package main
 
 import (
+	"day01/internal/comparison"
+	"day01/internal/dbreaders/jsonreader"
+	"day01/internal/dbreaders/xmlreader"
 	"day01/internal/entity"
 	"flag"
+	"fmt"
 	"io"
 	"log"
+	"os"
+	"path"
 )
 
 const usage string = "./compareDB --old original_database.xml --new stolen_database.json"
@@ -21,5 +27,45 @@ func main() {
 	if *oldFileName == "" || *newFileName == "" {
 		log.Fatal("one of the files was not provided")
 	}
+	oldFileReader := chooseHandlers(*oldFileName)
+	newFileReader := chooseHandlers(*newFileName)
 
+	if oldFileReader == nil || newFileReader == nil {
+		log.Fatal("file must have .json or .xml extension")
+	}
+
+	file, err := os.Open(*oldFileName)
+	defer file.Close()
+
+	if err != nil {
+		log.Fatalf("failed to open file: %v", err)
+	}
+
+	oldRecipes, err := oldFileReader.Read(file)
+	if err != nil {
+		log.Fatalf("failed to read the file: %v", err)
+	}
+
+	file, err = os.Open(*newFileName)
+	defer file.Close()
+
+	if err != nil {
+		log.Fatalf("failed to open file: %v", err)
+	}
+
+	newRecipes, err := newFileReader.Read(file)
+	if err != nil {
+		log.Fatalf("failed to read the file: %v", err)
+	}
+
+	fmt.Println(comparison.Compare(oldRecipes, newRecipes))
+}
+
+func chooseHandlers(fileName string) DBReader {
+	if path.Ext(fileName) == ".json" {
+		return jsonreader.JsonReader{}
+	} else if path.Ext(fileName) == ".xml" {
+		return xmlreader.XmlReader{}
+	}
+	return nil
 }
