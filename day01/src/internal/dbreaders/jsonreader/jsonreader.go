@@ -1,7 +1,7 @@
 package jsonreader
 
 import (
-	"day01/entity"
+	"day01/internal/entity"
 	"encoding/json"
 	"io"
 )

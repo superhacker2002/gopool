@@ -1,7 +1,7 @@
 package xmlreader
 
 import (
-	"day01/entity"
+	"day01/internal/entity"
 	"encoding/xml"
 	"io"
 )
