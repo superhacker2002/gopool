@@ -40,6 +40,8 @@ func main() {
 	}
 
 	file, err := os.Open(*fileName)
+	defer file.Close()
+
 	if err != nil {
 		log.Fatalf("failed to open file: %v", err)
 	}
