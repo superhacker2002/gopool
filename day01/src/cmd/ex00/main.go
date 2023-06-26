@@ -14,11 +14,6 @@ import (
 	"path"
 )
 
-const (
-	JSONFile = 1
-	XMLFile  = 2
-)
-
 type DBReader interface {
 	Read(reader io.Reader) (entity.CakeRecipes, error)
 }
@@ -54,7 +49,12 @@ func main() {
 		log.Fatalf("failed to read the file: %v", err)
 	}
 
-	fmt.Println(converter.Convert(recipes))
+	convRecipes, err := converter.Convert(recipes)
+	if err != nil {
+		log.Fatalf("failed to convert file to another extension: %v", err)
+	}
+
+	fmt.Println(convRecipes)
 }
 
 func chooseHandlers(fileName string) (DBReader, EntityConverter) {
