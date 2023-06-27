@@ -1,7 +1,7 @@
 package main
 
 import (
-	"day01/internal/comparison"
+	"day01/internal/comparators/dbcomparator"
 	"day01/internal/dbreaders/jsonreader"
 	"day01/internal/dbreaders/xmlreader"
 	"day01/internal/entity"
@@ -35,11 +35,11 @@ func main() {
 	}
 
 	file, err := os.Open(*oldFileName)
-	defer file.Close()
 
 	if err != nil {
 		log.Fatalf("failed to open file: %v", err)
 	}
+	defer file.Close()
 
 	oldRecipes, err := oldFileReader.Read(file)
 	if err != nil {
@@ -47,18 +47,18 @@ func main() {
 	}
 
 	file, err = os.Open(*newFileName)
-	defer file.Close()
 
 	if err != nil {
 		log.Fatalf("failed to open file: %v", err)
 	}
+	defer file.Close()
 
 	newRecipes, err := newFileReader.Read(file)
 	if err != nil {
 		log.Fatalf("failed to read the file: %v", err)
 	}
 
-	fmt.Println(comparison.Compare(oldRecipes, newRecipes))
+	fmt.Println(dbcomparator.Compare(oldRecipes, newRecipes))
 }
 
 func chooseHandlers(fileName string) DBReader {

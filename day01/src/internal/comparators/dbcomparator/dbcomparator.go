@@ -1,4 +1,4 @@
-package comparison
+package dbcomparator
 
 import (
 	"day01/internal/entity"

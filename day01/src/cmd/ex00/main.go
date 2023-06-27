@@ -40,11 +40,11 @@ func main() {
 	}
 
 	file, err := os.Open(*fileName)
-	defer file.Close()
 
 	if err != nil {
 		log.Fatalf("failed to open file: %v", err)
 	}
+	defer file.Close()
 
 	recipes, err := reader.Read(file)
 	if err != nil {
