@@ -6,7 +6,10 @@ import (
 	"os"
 )
 
-var ErrWrongFlagComb = errors.New("flag -ext can not be used without -f")
+var (
+	ErrWrongFlagComb = errors.New("flag -ext can not be used without -f")
+	ErrNoFile        = errors.New("file path was not provided")
+)
 
 type Options struct {
 	Sl       bool
@@ -25,6 +28,11 @@ func New() (Options, error) {
 	flag.Parse()
 	if !*file && *extension != "" {
 		return Options{}, ErrWrongFlagComb
+	}
+
+	filePath := os.Args[len(os.Args)-1]
+	if filePath == "" {
+		return Options{}, ErrNoFile
 	}
 
 	if !*dir && !*symlink && !*file {
