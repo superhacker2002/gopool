@@ -8,7 +8,6 @@ import (
 
 var (
 	ErrMultipleOptions = errors.New("multiple options are not allowed")
-	ErrNoOptions       = errors.New("at least one option should be specified")
 	ErrNoFiles         = errors.New("files were not provided")
 )
 
@@ -27,9 +26,19 @@ func New() (Options, error) {
 	flag.Parse()
 
 	files := os.Args[2:]
-	err := validate([]bool{*lines, *characters, *words}, files)
+	foundFlag, err := validate([]bool{*lines, *characters, *words})
+
+	if !foundFlag {
+		*words = true
+		files = os.Args[1:]
+	}
+
 	if err != nil {
 		return Options{}, err
+	}
+
+	if len(files) == 0 {
+		return Options{}, ErrNoFiles
 	}
 
 	return Options{
@@ -40,7 +49,7 @@ func New() (Options, error) {
 	}, nil
 }
 
-func validate(flags []bool, files []string) error {
+func validate(flags []bool) (bool, error) {
 	setFlags := 0
 	for _, f := range flags {
 		if f {
@@ -48,16 +57,12 @@ func validate(flags []bool, files []string) error {
 		}
 	}
 	if setFlags > 1 {
-		return ErrMultipleOptions
+		return true, ErrMultipleOptions
 	}
 
 	if setFlags == 0 {
-		flags[2] = true
+		return false, nil
 	}
 
-	if len(files) == 0 {
-		return ErrNoFiles
-	}
-
-	return nil
+	return true, nil
 }

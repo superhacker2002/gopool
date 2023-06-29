@@ -27,6 +27,12 @@ func start(opts options.Options) {
 	if opts.L {
 		processFiles(opts, count.Lines, g, ch)
 	}
+	if opts.M {
+		processFiles(opts, count.Characters, g, ch)
+	}
+	if opts.W {
+		processFiles(opts, count.Words, g, ch)
+	}
 
 	if err := g.Wait(); err != nil {
 		log.Fatalf("failed to process files: %v", err)
