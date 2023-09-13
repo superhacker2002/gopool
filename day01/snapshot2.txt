@@ -1,4 +1,0 @@
-/Users/baker/recipes/database_version3.yaml
-/Users/baker/recipes/database.xml
-/Users/baker/pokemon.avi
-/var/log/orders.log
