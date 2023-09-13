@@ -110,14 +110,14 @@ func (e ElasticClient) SendData(restaurants []entity.Restaurant, index string) e
 func entitiesToBulk(restaurants []entity.Restaurant, index string) *bytes.Buffer {
 	buf := bytes.NewBuffer([]byte{})
 
-	for _, doc := range restaurants {
-		jsonData, err := json.Marshal(doc)
+	for _, r := range restaurants {
+		jsonData, err := json.Marshal(entityToDTO(r))
 		if err != nil {
 			fmt.Printf("failed to marshal document: %s\n", err)
 			return nil
 		}
 
-		actionLine := fmt.Sprintf(`{ "index" : { "_index" : "%s", "_id" : "%d" } }`, index, doc.ID)
+		actionLine := fmt.Sprintf(`{ "index" : { "_index" : "%s", "_id" : "%d" } }`, index, r.ID)
 		buf.WriteString(actionLine)
 		buf.WriteString("\n")
 

@@ -42,5 +42,5 @@ func recordToEntity(record []string) entity.Restaurant {
 	lon, _ := strconv.ParseFloat(record[4], 64)
 	lat, _ := strconv.ParseFloat(record[5], 64)
 
-	return entity.New(id, record[1], record[2], record[3], lon, lat)
+	return entity.New(id+1, record[1], record[2], record[3], lon, lat)
 }
