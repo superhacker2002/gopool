@@ -2,16 +2,12 @@ package elasticclient
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"ex00/entity"
 	"fmt"
 	"github.com/elastic/go-elasticsearch/v7"
-	"github.com/elastic/go-elasticsearch/v7/esapi"
 	"github.com/olivere/elastic"
-	"golang.org/x/sync/errgroup"
-	"strconv"
-
+	"github.com/pkg/errors"
 	"strings"
 )
 
@@ -44,7 +40,9 @@ type ElasticClient struct {
 }
 
 func New() (ElasticClient, error) {
-	esClient, err := elasticsearch.NewDefaultClient()
+	esClient, err := elasticsearch.NewClient(elasticsearch.Config{
+		Addresses: []string{"http://localhost:9200"},
+	})
 	if err != nil {
 		return ElasticClient{}, fmt.Errorf("failed to create elastic search client: %w", err)
 	}
@@ -95,43 +93,39 @@ func (e ElasticClient) PutMapping(index, doc string) error {
 }
 
 func (e ElasticClient) SendData(restaurants []entity.Restaurant, index string) error {
-	var g errgroup.Group
-
-	for i, r := range restaurants {
-		i, r := i, r
-		g.Go(func() error {
-			res, err := json.Marshal(entityToDTO(r))
-			if err != nil {
-				return err
-			}
-			request := esapi.IndexRequest{
-				Index:      index,
-				DocumentID: strconv.Itoa(i + 1),
-				Body:       strings.NewReader(string(res)),
-				Refresh:    "true",
-			}
-
-			response, err := request.Do(context.Background(), e.es)
-			if err != nil {
-				return err
-			}
-			if response.IsError() {
-				return fmt.Errorf("error while indexing document: %w", err)
-			}
-			err = response.Body.Close()
-			if err != nil {
-				return err
-			}
-
-			return nil
-		})
+	buf := entitiesToBulk(restaurants, index)
+	res, err := e.es.Bulk(bytes.NewReader(buf.Bytes()), e.es.Bulk.WithIndex(index))
+	if err != nil {
+		return errors.Errorf("failed to send Bulk request: %s", err)
 	}
+	defer res.Body.Close()
 
-	if err := g.Wait(); err != nil {
-		return err
+	if res.IsError() {
+		return errors.Errorf("bulk request failed: %s", res.String())
 	}
 
 	return nil
+}
+
+func entitiesToBulk(restaurants []entity.Restaurant, index string) *bytes.Buffer {
+	buf := bytes.NewBuffer([]byte{})
+
+	for _, doc := range restaurants {
+		jsonData, err := json.Marshal(doc)
+		if err != nil {
+			fmt.Printf("failed to marshal document: %s\n", err)
+			return nil
+		}
+
+		actionLine := fmt.Sprintf(`{ "index" : { "_index" : "%s", "_id" : "%d" } }`, index, doc.ID)
+		buf.WriteString(actionLine)
+		buf.WriteString("\n")
+
+		buf.Write(jsonData)
+		buf.WriteString("\n")
+	}
+
+	return buf
 }
 
 func entityToDTO(r entity.Restaurant) Restaurant {
